@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[YOUR NAME] | Final-year BIT Student</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Professional profile of [YOUR NAME], final-year Bachelor of Information Technology student.">
+</head>
+<body>
+  <header class="container">
+    <div class="profile-header">
+      <div class="avatar" aria-hidden="true">YN</div>
+      <div>
+        <h1 id="name">[YOUR NAME]</h1>
+        <p id="tagline">Final-year Bachelor of Information Technology (BIT) Student</p>
+        <ul class="contact">
+          <li><a id="email" href="mailto:you@example.com">you@example.com</a></li>
+          <li><a id="phone" href="tel:+1234567890">+1 234 567 890</a></li>
+          <li><span id="location">City, Country</span></li>
+          <li><a id="portfolio" href="https://your-portfolio.com" target="_blank" rel="noopener">Portfolio</a></li>
+          <li><a id="github" href="https://github.com/yourhandle" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a id="linkedin" href="https://www.linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Profile</h2>
+      <p id="summary">[Write a concise 2–3 sentence summary highlighting your interests, strengths, and goals.]</p>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <ul class="skill-list" id="skills">
+        <li>Java</li>
+        <li>Python</li>
+        <li>Web Development (HTML, CSS, JavaScript)</li>
+        <li>SQL</li>
+        <li>Data Structures & Algorithms</li>
+        <li>Git & GitHub</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <article class="item">
+        <div class="item-header">
+          <h3 id="degree">B.I.T., [University Name]</h3>
+          <span class="meta"><time id="edu-start">2022</time> – <time id="edu-end">Present</time></span>
+        </div>
+        <p id="edu-notes">Relevant coursework: Software Engineering, Databases, Networks, Cloud Computing, HCI.</p>
+        <ul class="bullets">
+          <li>GPA: [Your GPA]</li>
+          <li>Awards: [Scholarships/Dean’s List]</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div class="cards" id="projects">
+        <article class="card">
+          <div class="card-header">
+            <h3>Project Name</h3>
+            <span class="meta">[Tech: React, Node, PostgreSQL]</span>
+          </div>
+          <p>One-line impact statement explaining what it does and your contribution.</p>
+          <ul class="bullets">
+            <li>Implemented [feature] improving [metric] by [X%].</li>
+            <li>Deployed on [platform]; wrote tests achieving [coverage %].</li>
+          </ul>
+          <div class="links">
+            <a href="#" target="_blank" rel="noopener">Live</a>
+            <a href="#" target="_blank" rel="noopener">Code</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      <article class="item">
+        <div class="item-header">
+          <h3>[Role], [Company]</h3>
+          <span class="meta"><time>Jun 2024</time> – <time>Aug 2024</time> · Internship</span>
+        </div>
+        <ul class="bullets">
+          <li>Did X using Y to achieve Z.</li>
+          <li>Collaborated with N teammates using Agile/Scrum.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Achievements</h2>
+      <ul class="bullets" id="achievements">
+        <li>Hackathon Winner – [Event], [Year]</li>
+        <li>Certification – [Name], [Year]</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Extracurricular</h2>
+      <ul class="bullets" id="extracurricular">
+        <li>Role – Club/Community – [Year]</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <button class="btn" onclick="window.print()">Download PDF</button>
+    <p>© <span id="year"></span> <span id="name-footer">[YOUR NAME]</span></p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const nameEl = document.getElementById('name');
+    if (nameEl) document.getElementById('name-footer').textContent = nameEl.textContent;
+  </script>
+</body>
+</html>
