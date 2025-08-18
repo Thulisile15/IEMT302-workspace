@@ -103,6 +103,21 @@ If you prefer to change how long training runs or how fast it learns, open `main
 
 ---
 
+## Run it in your browser (HTML/JS)
+
+No install needed. The same single example is implemented in `index.html` using plain JavaScript.
+
+### Steps
+1. Open `index.html` in any modern browser (Chrome, Edge, Firefox, Safari). You can simply double‑click it.
+   - Alternatively, serve the folder (optional) to use `http://localhost`:
+     ```bash
+     python3 -m http.server 8000
+     # then open http://localhost:8000/index.html
+     ```
+2. The page will train automatically once and show logs and results. You can adjust the learning rate and epochs and click "Run training" again.
+
+---
+
 ## Why this is machine learning
 We did not program the exact formula in advance; instead, we gave the model examples (training data) and let it learn the best `weight` and `bias` by minimizing error. After training, the model generalizes to new inputs (e.g., 6 study hours) and produces an output (predicted exam score).
 

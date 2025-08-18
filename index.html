@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simplest ML: Linear Regression (Browser)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.5; }
+    h1, h2 { margin: 0 0 8px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin: 12px 0; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #e5e7eb; padding: 6px 10px; text-align: left; }
+    pre { background: #0b1020; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow: auto; }
+    .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    input[type="number"] { width: 100px; }
+    button { padding: 8px 12px; border: 1px solid #1f2937; background: #111827; color: #f9fafb; border-radius: 6px; cursor: pointer; }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 12px; border: 1px solid #c7d2fe; }
+  </style>
+  <meta name="description" content="Simplest machine learning example: learn y = w*x + b using gradient descent in pure JavaScript." />
+  <meta name="color-scheme" content="light dark" />
+</head>
+<body>
+  <h1>Simplest Machine Learning: 1D Linear Regression</h1>
+  <p class="pill">Model: y_hat = weight * x + bias</p>
+
+  <div class="card">
+    <h2>Scenario</h2>
+    <p>Predict a student's exam score (label) from the number of study hours (feature). We train a linear model with gradient descent to minimize mean squared error.</p>
+    <ul>
+      <li><strong>Feature (x)</strong>: hours studied</li>
+      <li><strong>Label (y)</strong>: exam score</li>
+      <li><strong>Parameters</strong>: weight (slope), bias (intercept)</li>
+      <li><strong>Output</strong>: prediction y_hat for any x</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Training data</h2>
+    <p>We use a perfect linear relationship y = 5x + 10</p>
+    <table>
+      <thead><tr><th>hours (x)</th><th>score (y)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>15</td></tr>
+        <tr><td>2</td><td>20</td></tr>
+        <tr><td>3</td><td>25</td></tr>
+        <tr><td>4</td><td>30</td></tr>
+        <tr><td>5</td><td>35</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Controls</h2>
+    <div class="controls">
+      <label>Learning rate <input id="lr" type="number" step="0.001" value="0.01"></label>
+      <label>Epochs <input id="epochs" type="number" step="1" value="1000"></label>
+      <button id="run">Run training</button>
+      <button id="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Training log</h2>
+    <pre id="log" aria-live="polite"></pre>
+  </div>
+
+  <div class="card">
+    <h2>Result</h2>
+    <p id="result">Model not trained yet.</p>
+  </div>
+
+  <script>
+    "use strict";
+
+    function predict(featureValue, weight, bias) {
+      return weight * featureValue + bias;
+    }
+
+    function computePredictions(features, weight, bias) {
+      return features.map(function (x) { return predict(x, weight, bias); });
+    }
+
+    function computeMeanSquaredError(labels, predictions) {
+      if (labels.length !== predictions.length) throw new Error("labels and predictions must match in length");
+      var n = labels.length;
+      if (n === 0) return 0;
+      var sum = 0;
+      for (var i = 0; i < n; i++) {
+        var diff = predictions[i] - labels[i];
+        sum += diff * diff;
+      }
+      return sum / n;
+    }
+
+    function computeGradients(features, labels, weight, bias) {
+      if (features.length !== labels.length) throw new Error("features and labels must match in length");
+      var n = features.length;
+      if (n === 0) return { dWeight: 0, dBias: 0 };
+      var gradW = 0;
+      var gradB = 0;
+      for (var i = 0; i < n; i++) {
+        var x = features[i];
+        var y = labels[i];
+        var yPred = predict(x, weight, bias);
+        var err = yPred - y;
+        gradW += err * x;
+        gradB += err;
+      }
+      var factor = 2 / n;
+      return { dWeight: factor * gradW, dBias: factor * gradB };
+    }
+
+    function trainLinearRegression(features, labels, learningRate, epochs, initialWeight, initialBias, onLog) {
+      var weight = initialWeight;
+      var bias = initialBias;
+      var losses = [];
+      for (var epoch = 1; epoch <= epochs; epoch++) {
+        var preds = computePredictions(features, weight, bias);
+        var loss = computeMeanSquaredError(labels, preds);
+        losses.push(loss);
+        var grads = computeGradients(features, labels, weight, bias);
+        weight -= learningRate * grads.dWeight;
+        bias   -= learningRate * grads.dBias;
+        if (epoch % Math.max(1, Math.floor(epochs / 10)) === 0 && onLog) {
+          onLog("Epoch " + String(epoch).padStart(4, " ") + "/" + epochs +
+                " | loss=" + loss.toFixed(6) +
+                " | weight=" + weight.toFixed(6) +
+                " | bias=" + bias.toFixed(6));
+        }
+      }
+      return { weight: weight, bias: bias, lossHistory: losses };
+    }
+
+    function main() {
+      var features = [1, 2, 3, 4, 5];
+      var labels   = [15, 20, 25, 30, 35];
+
+      var logEl = document.getElementById("log");
+      var resultEl = document.getElementById("result");
+      var runBtn = document.getElementById("run");
+      var resetBtn = document.getElementById("reset");
+      var lrInput = document.getElementById("lr");
+      var epochsInput = document.getElementById("epochs");
+
+      function appendLog(text) {
+        logEl.textContent += text + "\n";
+      }
+
+      function clearLog() {
+        logEl.textContent = "";
+      }
+
+      function runTraining() {
+        runBtn.disabled = true;
+        clearLog();
+        appendLog("Training a linear model y_hat = weight * x + bias");
+        appendLog("Features (x): [" + features.join(", ") + "]");
+        appendLog("Labels   (y): [" + labels.join(", ") + "]");
+
+        var learningRate = parseFloat(lrInput.value);
+        var epochs = parseInt(epochsInput.value, 10);
+        var trained = trainLinearRegression(
+          features,
+          labels,
+          learningRate,
+          epochs,
+          0.0,
+          0.0,
+          appendLog
+        );
+
+        var xNew = 6.0;
+        var yPred = predict(xNew, trained.weight, trained.bias);
+        resultEl.textContent =
+          "Learned weight = " + trained.weight.toFixed(6) +
+          ", bias = " + trained.bias.toFixed(6) +
+          ". For x = " + xNew.toFixed(1) + ", predicted exam score (output) = " + yPred.toFixed(2) + ".";
+        runBtn.disabled = false;
+      }
+
+      function reset() {
+        lrInput.value = "0.01";
+        epochsInput.value = "1000";
+        resultEl.textContent = "Model not trained yet.";
+        clearLog();
+      }
+
+      runBtn.addEventListener("click", runTraining);
+      resetBtn.addEventListener("click", reset);
+
+      // Auto-run once on load for convenience
+      runTraining();
+    }
+
+    window.addEventListener("DOMContentLoaded", main);
+  </script>
+</body>
+</html>
+
