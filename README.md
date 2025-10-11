@@ -24,6 +24,7 @@ The script `simple_ml.py`:
 ### Requirements
 - Python 3.8+
 - NumPy
+- Matplotlib (only if you want plots)
 
 Install with:
 ```bash
@@ -56,6 +57,26 @@ Sample predictions (x -> predicted | true):
   +1.50 ->  +6.5062 |  +6.5000
   +4.00 -> +14.0381 | +14.0000
 ```
+
+### Plotting (optional)
+Install plotting dependencies if you haven't already:
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Produce plots without opening windows (saved to `plots/`):
+```bash
+python3 simple_ml.py --plot --save plots
+```
+
+Show interactive windows (if your environment supports a GUI):
+```bash
+python3 simple_ml.py --plot --show
+```
+
+Two PNGs are produced when saving:
+- `plots/loss.png`: training loss over steps
+- `plots/fit.png`: data points, learned line, and true line
 
 ### Explanation in plain words
 - We start with a guess for `w` and `b`. The model predicts a value for each input `x`.

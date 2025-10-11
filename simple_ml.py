@@ -6,12 +6,15 @@ This script generates synthetic data from a true linear relationship
 and then learns parameters (weight and bias) by minimizing mean squared error
 via gradient descent.
 
-Only NumPy is used for numerical computations.
+Only NumPy is used for numerical computations. Matplotlib is optional and
+only needed if you pass --plot to visualize results.
 """
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+import argparse
+from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
@@ -108,7 +111,75 @@ def train_linear_regression(
     return params, history
 
 
+def make_loss_figure(history):
+    """Create a matplotlib Figure showing the training loss over steps.
+
+    Import pyplot locally so the script runs without matplotlib unless plotting
+    is requested.
+    """
+    import matplotlib.pyplot as plt  # imported only when plotting
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot(range(len(history)), history, label="MSE loss", color="tab:blue")
+    ax.set_xlabel("Step")
+    ax.set_ylabel("Loss (MSE)")
+    ax.set_title("Training Loss")
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
+def make_fit_figure(data: Dataset, params: ModelParams, true_weight: float, true_bias: float):
+    """Create a matplotlib Figure with data scatter and learned vs true line."""
+    import matplotlib.pyplot as plt  # imported only when plotting
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.scatter(data.x, data.y, s=18, alpha=0.75, label="data", color="tab:blue")
+
+    x_min = float(np.min(data.x))
+    x_max = float(np.max(data.x))
+    xs = np.linspace(x_min, x_max, 200)
+    ax.plot(xs, params.weight * xs + params.bias, label="learned", color="tab:orange", linewidth=2)
+    ax.plot(
+        xs,
+        true_weight * xs + true_bias,
+        label="true",
+        color="tab:green",
+        linestyle="--",
+        linewidth=2,
+    )
+
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title("Data and Fitted Line")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    return fig
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Minimal from-scratch linear regression")
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Generate plots (loss curve and data+fit).",
+    )
+    parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Show interactive plot windows (requires GUI backend).",
+    )
+    parser.add_argument(
+        "--save",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help="Directory to save plots (PNG). Created if missing.",
+    )
+    args = parser.parse_args()
+
     # Ground-truth linear relationship used to generate data
     true_weight = 3.0
     true_bias = 2.0
@@ -142,6 +213,34 @@ def main() -> None:
     print("\nSample predictions (x -> predicted | true):")
     for x_val, y_hat, y_true in zip(test_x, preds, truth):
         print(f"  {x_val:+5.2f} -> {y_hat:+8.4f} | {y_true:+8.4f}")
+
+    # Optional plotting
+    if args.plot:
+        # Ensure a non-interactive backend if we are not showing windows
+        import matplotlib
+        if not args.show:
+            matplotlib.use("Agg", force=True)
+
+        loss_fig = make_loss_figure(history)
+        fit_fig = make_fit_figure(data, learned_params, true_weight, true_bias)
+
+        if args.save:
+            out_dir = Path(args.save)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            loss_path = out_dir / "loss.png"
+            fit_path = out_dir / "fit.png"
+            loss_fig.savefig(loss_path, dpi=150)
+            fit_fig.savefig(fit_path, dpi=150)
+            print(f"\nSaved plots to: {loss_path} and {fit_path}")
+
+        if args.show:
+            import matplotlib.pyplot as plt  # import after backend configured
+            plt.show()
+        else:
+            # Close figures to free memory in headless runs
+            import matplotlib.pyplot as plt
+            plt.close(loss_fig)
+            plt.close(fit_fig)
 
 
 if __name__ == "__main__":
