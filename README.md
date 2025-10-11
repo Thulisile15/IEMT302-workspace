@@ -1,124 +1,79 @@
-## Simplest Machine Learning: 1D Linear Regression from Scratch
+## Simple From-Scratch Linear Regression (Minimal ML Example)
 
-This repo contains a single, minimal example of machine learning implemented from scratch in pure Python. It demonstrates all the core ingredients you were asked to show: training data, features, labels, a model with weight and bias, training via gradient descent, and producing outputs (predictions).
+This repository demonstrates the simplest possible machine learning example: fitting a straight line to data using gradient descent, implemented from scratch with only NumPy.
 
-### Scenario
-Predict a student's exam score from the number of study hours.
+- **Goal**: Recover the parameters of a line that generated synthetic data: `y = w * x + b + noise`.
+- **Learning**: We adjust `w` (weight) and `b` (bias) to minimize Mean Squared Error (MSE) between predictions and observed `y`.
+- **Why this is ML**: The model learns parameters from data by optimizing a loss function.
 
-- **feature (x)**: hours studied
-- **label (y)**: exam score
-- **model**: y_hat = weight * x + bias
+### What the code does
+The script `simple_ml.py`:
+1. Generates synthetic data from a true line (`w=3.0`, `b=2.0`) with Gaussian noise.
+2. Initializes the model parameters (`w`, `b`) randomly.
+3. Repeatedly computes predictions, calculates MSE loss, computes gradients analytically, and applies gradient descent updates.
+4. Prints training progress and shows sample predictions compared to the true line.
 
-We will learn the best `weight` (slope) and `bias` (intercept) that map hours studied to exam score.
+### Mathematical details (concise)
+- **Model**: \( \hat{y} = w x + b \)
+- **Loss**: Mean Squared Error, \( L = \frac{1}{n} \sum_i (\hat{y}_i - y_i)^2 \)
+- **Gradients**:
+  - \( \frac{\partial L}{\partial w} = \frac{2}{n} \sum_i (\hat{y}_i - y_i) x_i \)
+  - \( \frac{\partial L}{\partial b} = \frac{2}{n} \sum_i (\hat{y}_i - y_i) \)
+- **Update rule (gradient descent)**: \( w \leftarrow w - \eta \frac{\partial L}{\partial w},\quad b \leftarrow b - \eta \frac{\partial L}{\partial b} \) where \( \eta \) is the learning rate.
 
-### Training data
-We use a small toy dataset with a perfectly linear relationship y = 5x + 10:
+### Requirements
+- Python 3.8+
+- NumPy
 
-| hours (x) | score (y) |
-|-----------|-----------|
-| 1         | 15        |
-| 2         | 20        |
-| 3         | 25        |
-| 4         | 30        |
-| 5         | 35        |
-
-### The model
-We assume a linear relationship between input and output:
-
-- **Prediction (output)**: y_hat = weight * x + bias
-- **weight (w)**: how much the prediction changes per extra hour studied
-- **bias (b)**: baseline score when x = 0 (the intercept)
-
-### Loss function (what we minimize)
-We train the model by minimizing Mean Squared Error (MSE) between predictions and labels:
-
-MSE = (1/n) * Σ (y_hat - y)^2
-
-This is small when predictions y_hat are close to the true labels y.
-
-### How training works (gradient descent)
-We start with initial values for `weight` and `bias` (e.g., both zero). On each training step, we:
-
-1. Compute predictions y_hat for all training examples using the current `weight` and `bias`.
-2. Compute the loss (MSE) between predictions and true labels.
-3. Compute the gradients (how to change parameters to reduce loss):
-   - dMSE/dw = (2/n) * Σ ((y_hat - y) * x)
-   - dMSE/db = (2/n) * Σ (y_hat - y)
-4. Update parameters in the direction that reduces loss:
-   - weight ← weight − learning_rate * dMSE/dw
-   - bias   ← bias   − learning_rate * dMSE/db
-
-Repeat steps 1–4 for many epochs until the loss is small and the parameters settle near their optimal values.
-
-### What each piece means in this example
-- **Training data**: the table above of (hours, score) pairs
-- **Features**: the list of hours `[1, 2, 3, 4, 5]`
-- **Labels**: the list of scores `[15, 20, 25, 30, 35]`
-- **Weight**: the learned slope, expected near 5.0
-- **Bias**: the learned intercept, expected near 10.0
-- **Output**: a prediction y_hat for any given x using y_hat = weight*x + bias
-
----
-
-## How to run it
-
-### Prerequisites
-- Python 3.8+ (no external libraries needed)
-
-### Steps
-1. Open a terminal in the repo root.
-2. (Optional but recommended) Create and activate a virtual environment:
-
+Install with:
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m pip install -r requirements.txt
 ```
 
-3. Run the example:
-
+### How to run
+From the repo root:
 ```bash
-python3 main.py
+python3 simple_ml.py
 ```
 
-You should see training progress logs and then the learned parameters and a sample prediction.
-
-### Example output (your numbers may differ slightly)
-
+You should see output like:
 ```text
-Training a linear model y_hat = weight * x + bias
-Features (x): [1, 2, 3, 4, 5]
-Labels   (y): [15, 20, 25, 30, 35]
-Epoch  100/1000 | loss=0.036xxx | weight=4.3xxx | bias=10.3xxx
+Generating synthetic data...
+True parameters: weight=+3.0000, bias=+2.0000
+Training with learning_rate=0.05, steps=2000
+
+step=   0  loss= 28.125819  weight= +0.0305  bias= -0.1040
+step= 200  loss=  0.958864  weight= +3.0128  bias= +1.9870
 ...
-Epoch 1000/1000 | loss=0.000000 | weight=5.000000 | bias=10.000000
+step=2000  loss=  0.958864  weight= +3.0128  bias= +1.9870
 
 Training complete.
-Learned weight: 5.000000
-Learned bias:   10.000000
+Learned parameters: weight=+3.0128, bias=+1.9870
 
-For x = 6.0 study hours, predicted exam score (output) = 40.00
+Sample predictions (x -> predicted | true):
+  -2.00 ->  -4.0385 |  -4.0000
+  +0.00 ->  +1.9870 |  +2.0000
+  +1.50 ->  +6.5062 |  +6.5000
+  +4.00 -> +14.0381 | +14.0000
 ```
 
-If you prefer to change how long training runs or how fast it learns, open `main.py` and adjust `epochs` and `learning_rate` in the `train_linear_regression(...)` call.
+### Explanation in plain words
+- We start with a guess for `w` and `b`. The model predicts a value for each input `x`.
+- We measure how wrong the predictions are using MSE. Larger errors increase the loss.
+- The gradients tell us which way to change `w` and `b` to reduce the loss the fastest.
+- Repeating small steps in that direction (gradient descent) nudges `w` and `b` toward values that best fit the data.
+- Because the data was created from a true line, the learned parameters end up very close to the true `w=3.0`, `b=2.0`.
 
----
+### Project structure
+- `simple_ml.py`: Minimal implementation of data generation and gradient descent training
+- `requirements.txt`: Python dependency list
+- `.gitignore`: Standard Python ignores
 
-## Run it in your browser (HTML/JS)
+### Repro tips
+- If you need reproducible runs, parameters and data are seeded in the script; you can change the `seed` in `TrainingConfig` or in the data generator for different randomness.
+- If training seems unstable, lower the learning rate in `TrainingConfig`.
 
-No install needed. The same single example is implemented in `index.html` using plain JavaScript.
-
-### Steps
-1. Open `index.html` in any modern browser (Chrome, Edge, Firefox, Safari). You can simply double‑click it.
-   - Alternatively, serve the folder (optional) to use `http://localhost`:
-     ```bash
-     python3 -m http.server 8000
-     # then open http://localhost:8000/index.html
-     ```
-2. The page will train automatically once and show logs and results. You can adjust the learning rate and epochs and click "Run training" again.
-
----
-
-## Why this is machine learning
-We did not program the exact formula in advance; instead, we gave the model examples (training data) and let it learn the best `weight` and `bias` by minimizing error. After training, the model generalizes to new inputs (e.g., 6 study hours) and produces an output (predicted exam score).
-
-# IEMT302-workspace
+### Next steps (optional)
+- Plot training loss over time using matplotlib.
+- Switch to closed-form solution (normal equation) to compare with gradient descent.
+- Extend to multivariate linear regression with vectorized parameters.
